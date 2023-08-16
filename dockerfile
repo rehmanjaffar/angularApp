@@ -6,3 +6,5 @@ RUN npm install node-sass@latest
 COPY . .
 EXPOSE 3002
 CMD ["npm", "start"]
+
+
