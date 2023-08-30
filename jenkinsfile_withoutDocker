@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+    environment{
+        PATH = "${tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'}/bin:${env.PATH}"
+        PYTHON = "/usr/bin/python3"
+
+    }
+    stages {
+        stage('Clean workspace') {
+            steps {
+                script {
+                    deleteDir()
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                script {
+                    // Start the SSH agent
+                    sshagent(credentials: ['c78c0348-18f0-4d31-ae84-4467c1180f2a']) {
+                        // Manually add the host key to known hosts
+                        sh 'ssh-keyscan github.com >> ~/.ssh/known_hosts'
+                        // Run your Git commands here
+                        sh 'git clone git@github.com:rehmanjaffar/angularApp.git'
+                    }
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                dir('angularApp') {
+                    script {
+                        // Set PYTHON environment variable to point to Python 3
+                        env.PYTHON = '/usr/bin/python3'
+                        sh 'npm install'
+                        sh 'npm install node-sass@latest'
+                    }
+                }
+            }
+        }
+         stage('Run') {
+        steps {
+                 dir('angularApp') {
+                     sh 'npm start' // Install Angular CLI globally
+                 }
+                
+             }
+         }
+    }
+}
+
